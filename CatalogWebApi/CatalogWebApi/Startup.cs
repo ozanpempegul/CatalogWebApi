@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using CatalogWebApi.Base;
+using Microsoft.AspNetCore.Diagnostics;
 using System.Net;
 
 namespace CatalogWebApi

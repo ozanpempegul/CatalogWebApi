@@ -9,7 +9,10 @@ namespace CatalogWebApi.Service
         public MappingProfile()
         {
             CreateMap<Account, AccountDto>().ReverseMap();
-            CreateMap<Person, PersonDto>().ReverseMap();
+            CreateMap<Product, ProductDto>().ReverseMap();
+            CreateMap<Color, ColorDto>().ReverseMap();
+            CreateMap<Brand, BrandDto>().ReverseMap();
+            CreateMap<Category, CategoryDto>().ReverseMap();
         }
 
     }

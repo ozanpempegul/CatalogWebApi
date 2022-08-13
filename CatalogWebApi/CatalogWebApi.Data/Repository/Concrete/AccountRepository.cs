@@ -1,9 +1,11 @@
-﻿namespace CatalogWebApi.Data
+﻿using CatalogWebApi.Base;
+using Microsoft.EntityFrameworkCore;
+
+namespace CatalogWebApi.Data
 {
     public class AccountRepository : GenericRepository<Account>, IAccountRepository
     {
         public AccountRepository(AppDbContext context) : base(context) { }
-
 
 
         public async Task<Account> GetByIdAsync(int id, bool hasToken)
@@ -11,8 +13,6 @@
             var queryable = Context.Account.Where(x => x.Id.Equals(id));
             return await queryable.SingleOrDefaultAsync();
         }
-
-        public async Task<int> TotalRecordAsync() => await Context.Account.CountAsync();
 
         public async Task<Account> ValidateCredentialsAsync(TokenRequest loginResource)
         {

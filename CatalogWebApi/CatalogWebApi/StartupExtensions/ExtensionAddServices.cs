@@ -1,4 +1,9 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using AutoMapper;
+using CatalogWebApi.Data;
+using CatalogWebApi.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 namespace CatalogWebApi
 {
@@ -7,8 +12,7 @@ namespace CatalogWebApi
 
     
         public static void AddContextDependencyInjection(this IServiceCollection services, IConfiguration Configuration)
-        {
-            // db  sql server or posgre
+        {            
             var dbtype = Configuration.GetConnectionString("DbType");
             if (dbtype == "SQL")
             {
@@ -21,9 +25,14 @@ namespace CatalogWebApi
         {
 
             // add services
-            services.AddScoped<IPersonRepository, PersonRepository>();
-            services.AddScoped<IPersonService, PersonService>();
-
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IColorRepository, ColorRepository>();
+            services.AddScoped<IColorService, ColorService>();
+            services.AddScoped<IBrandRepository, BrandRepository>();
+            services.AddScoped<IBrandService, BrandService>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ICategoryService, CategoryService>();
 
             // uow
             services.AddScoped<IUnitOfWork, UnitOfWork>();

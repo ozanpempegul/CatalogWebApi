@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace CatalogWebApi.Data
 {
@@ -36,9 +37,8 @@ namespace CatalogWebApi.Data
 
         public void RemoveAsync(Entity entity)
         {
-            //Context.Remove(entity);
-            entities.Remove(entity);
-            //entity.GetType().GetProperty("IsDeleted").SetValue(entity, true);
+            //entities.Remove(entity);
+            entity.GetType().GetProperty("isdeleted").SetValue(entity, true);
         }
 
         public void Update(Entity entity)

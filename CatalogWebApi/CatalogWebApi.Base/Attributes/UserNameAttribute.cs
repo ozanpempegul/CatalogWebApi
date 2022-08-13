@@ -13,7 +13,7 @@ namespace CatalogWebApi.Base
                     return new ValidationResult("Invalid User name field.");
 
                 if (Regex.IsMatch(value.ToString(), @"\s", RegexOptions.Compiled))
-                    return new ValidationResult("User name is not contain any space characters.");
+                    return new ValidationResult("User name should not contain any space characters.");
 
                 return ValidationResult.Success;
             }

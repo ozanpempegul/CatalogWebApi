@@ -19,7 +19,7 @@ namespace CatalogWebApi.Base
             }
             catch (Exception)
             {
-                return new ValidationResult("Password must MD5 format.");
+                return new ValidationResult("Password must be in MD5 format.");
             }
         }
     }

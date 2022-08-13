@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace CatalogWebApi.Data
 {
@@ -8,22 +9,28 @@ namespace CatalogWebApi.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
-        }
-
-        public DbSet<Person> Person { get; set; }
+        }        
+        public DbSet<Product> Product { get; set; }
         public DbSet<Account> Account { get; set; }
+        public DbSet<Color> Color { get; set; }
+        public DbSet<Category> Category { get; set; }
+        public DbSet<Brand> Brand { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-            builder.Entity<Person>(builder =>
+            builder.Entity<Product>(builder =>
             {
                 //builder.HasNoKey();
-                builder.ToTable("person");
+                builder.ToTable("product");
+            });
+            builder.Entity<Account>(builder =>
+            {
+                //builder.HasNoKey();
+                builder.ToTable("account");
             });
         }
-
-
     }
 }

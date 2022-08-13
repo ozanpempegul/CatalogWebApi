@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
-
-
-public class HeartbeatMiddleware
+﻿public class HeartbeatMiddleware
 {
     private readonly RequestDelegate _next;
 

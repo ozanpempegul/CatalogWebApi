@@ -6,4 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CatalogWebApi.Data\CatalogWebApi.Data.csproj" />
+    <ProjectReference Include="..\CatalogWebApi.Dto\CatalogWebApi.Dto.csproj" />
+  </ItemGroup>
+
 </Project>

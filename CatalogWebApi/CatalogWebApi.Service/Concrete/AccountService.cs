@@ -16,12 +16,14 @@ namespace CatalogWebApi.Service
         public override async Task<BaseResponse<AccountDto>> InsertAsync(AccountDto createAccountResource)
         {
             try
-            {              
+            {
                 // Mapping Resource to Account
                 var tempAccount = Mapper.Map<AccountDto, Account>(createAccountResource);
 
                 await accountRepository.InsertAsync(tempAccount);
                 await UnitOfWork.CompleteAsync();
+
+                tempAccount.LastActivity = DateTime.UtcNow;
 
                 return new BaseResponse<AccountDto>(Mapper.Map<Account, AccountDto>(tempAccount));
             }
@@ -41,6 +43,8 @@ namespace CatalogWebApi.Service
                 // Update infomation
                 Mapper.Map(resource, tempAccount);
                 accountRepository.Update(tempAccount);
+
+                tempAccount.LastActivity = DateTime.UtcNow;
 
                 await UnitOfWork.CompleteAsync();
 
