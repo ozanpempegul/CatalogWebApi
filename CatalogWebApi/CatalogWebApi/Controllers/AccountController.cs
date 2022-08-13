@@ -3,6 +3,7 @@ using CatalogWebApi.Base;
 using CatalogWebApi.Data;
 using CatalogWebApi.Dto;
 using CatalogWebApi.Service;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -31,12 +32,24 @@ namespace CatalogWebApi
         [HttpPost]        
         public new async Task<IActionResult> CreateAsync([FromBody] AccountDto resource)
         {
-            var result = await _accountService.InsertAsync(resource);
 
-            if (!result.Success)
-                return BadRequest(result);
+            try
+            {
+                BackgroundJob.Enqueue(() => _accountService.InsertAsync(resource));
+            }
+            catch
+            {
+                return BadRequest();
+            }
 
-            return StatusCode(201, result);
+            return StatusCode(201);
+
+            //var result = await _accountService.InsertAsync(resource);            
+
+            //if (!result.Success)
+            //    return BadRequest(result);            
+
+            //return StatusCode(201, result);
         }
 
         [HttpGet("GetUserDetail")]

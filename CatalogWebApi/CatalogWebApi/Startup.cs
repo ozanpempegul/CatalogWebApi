@@ -1,4 +1,5 @@
 ﻿using CatalogWebApi.Base;
+using Hangfire;
 using Microsoft.AspNetCore.Diagnostics;
 using System.Net;
 
@@ -35,6 +36,9 @@ namespace CatalogWebApi
             services.AddContextDependencyInjection(Configuration);
             services.AddCustomizeSwagger();
 
+            //add hangfire
+            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddHangfireServer();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -72,6 +76,8 @@ namespace CatalogWebApi
                 });
             });
 
+            // hangfire
+            app.UseHangfireDashboard();
 
             app.UseHttpsRedirection();
 
