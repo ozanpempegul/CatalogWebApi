@@ -6,6 +6,8 @@ using CatalogWebApi.Service;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 
 namespace CatalogWebApi
@@ -30,26 +32,34 @@ namespace CatalogWebApi
 
 
         [HttpPost]        
-        public new async Task<IActionResult> CreateAsync([FromBody] AccountDto resource)
+        public new IActionResult CreateAsync([FromBody] AccountDto resource) // public new async Task<IActionResult>
         {
-
-            try
+            using (SmtpClient client = new SmtpClient("smtp.gmail.com", 587))
             {
-                BackgroundJob.Enqueue(() => _accountService.InsertAsync(resource));
+                client.EnableSsl = true;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential("mephistopeles11@gmail.com", "otetltwcpvlcrtwx"); // TO DO read it from a file
+                MailMessage msgObj = new MailMessage();
+                msgObj.To.Add(resource.Email);
+                msgObj.From = new MailAddress("mephistopeles11@gmail.com");
+                msgObj.Subject = "Registration";
+                msgObj.Body = "Successfully Registered";
+
+
+                try
+                {
+                    BackgroundJob.Enqueue(() => _accountService.InsertAsync(resource));
+                }
+                catch
+                {
+                    return BadRequest();
+                }
+
+                client.Send(msgObj);
+
+                return StatusCode(201);
             }
-            catch
-            {
-                return BadRequest();
-            }
-
-            return StatusCode(201);
-
-            //var result = await _accountService.InsertAsync(resource);            
-
-            //if (!result.Success)
-            //    return BadRequest(result);            
-
-            //return StatusCode(201, result);
         }
 
         [HttpGet("GetUserDetail")]
