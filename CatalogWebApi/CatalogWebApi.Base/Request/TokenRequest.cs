@@ -6,11 +6,11 @@ namespace CatalogWebApi.Base
         [Required]
         [MaxLength(125)]
         [UserNameAttribute]
-        [Display(Name = "User Name")]
-        public string UserName { get; set; }
+        [Display(Name = "Email")]
+        public string Email { get; set; }
 
         [Required]
-        [PasswordAttribute]
+        //[PasswordAttribute]
         public string Password { get; set; }
     }
 }

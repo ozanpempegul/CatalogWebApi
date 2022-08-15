@@ -13,6 +13,6 @@ namespace CatalogWebApi.Data
         public DateTime DateOfBirth { get; set; }
         public Nullable<DateTime> LastActivity { get; set; }
         public bool isdeleted { get; set; }
-
+        public int invalidtries { get; set; }
     }
 }

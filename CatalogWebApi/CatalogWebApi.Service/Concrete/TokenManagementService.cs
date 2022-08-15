@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace CatalogWebApi.Service
@@ -30,8 +31,20 @@ namespace CatalogWebApi.Service
         {
             try
             {
+                //MD5 hash and salting 
+                string MD5Salting(string pwd)
+                {
+                    MD5 md5 = new MD5CryptoServiceProvider();
+                    byte[] bytes = md5.ComputeHash(Encoding.Unicode.GetBytes(pwd));
+                    string result = BitConverter.ToString(bytes).Replace("-", String.Empty);
+                    return result.ToLower();
+                }
+                tokenRequest.Password = MD5Salting(tokenRequest.Password);
+
                 // Validate Login-request
                 var tempAccount = await _accountRepository.ValidateCredentialsAsync(tokenRequest);
+                await _unitOfWork.CompleteAsync();
+
                 if (tempAccount is null)
                     return new BaseResponse<TokenResponse>("Token_Invalid");
 

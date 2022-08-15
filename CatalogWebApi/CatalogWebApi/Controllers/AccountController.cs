@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Mail;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace CatalogWebApi
 {
@@ -32,34 +34,15 @@ namespace CatalogWebApi
 
 
         [HttpPost]        
-        public new IActionResult CreateAsync([FromBody] AccountDto resource) // public new async Task<IActionResult>
+        public new async Task<IActionResult> CreateAsync([FromBody] AccountDto resource) // public new async Task<IActionResult>
         {
-            using (SmtpClient client = new SmtpClient("smtp.gmail.com", 587))
-            {
-                client.EnableSsl = true;
-                client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                client.UseDefaultCredentials = false;
-                client.Credentials = new NetworkCredential("mephistopeles11@gmail.com", "otetltwcpvlcrtwx"); // TO DO read it from a file
-                MailMessage msgObj = new MailMessage();
-                msgObj.To.Add(resource.Email);
-                msgObj.From = new MailAddress("mephistopeles11@gmail.com");
-                msgObj.Subject = "Registration";
-                msgObj.Body = "Successfully Registered";
+            var result = await _accountService.InsertAsync(resource);
+            BackgroundJob.Enqueue(() => _accountService.SendEmail(resource));
 
+            if (!result.Success)
+                return BadRequest(result);
 
-                try
-                {
-                    BackgroundJob.Enqueue(() => _accountService.InsertAsync(resource));
-                }
-                catch
-                {
-                    return BadRequest();
-                }
-
-                client.Send(msgObj);
-
-                return StatusCode(201);
-            }
+            return StatusCode(201, result);
         }
 
         [HttpGet("GetUserDetail")]
@@ -97,6 +80,5 @@ namespace CatalogWebApi
         {
             return await base.DeleteAsync(id);
         }
-
     }
 }

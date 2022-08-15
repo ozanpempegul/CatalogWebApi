@@ -12,7 +12,7 @@ namespace CatalogWebApi.Dto
         public string UserName { get; set; }
 
         [Required]
-        [PasswordAttribute]
+        //[PasswordAttribute]
         public string Password { get; set; }
 
         [Required]
@@ -26,12 +26,12 @@ namespace CatalogWebApi.Dto
         public string LastName { get; set; }
 
         [Required]
-        [EmailAddressAttribute]
+        [EmailAddressAttribute(ErrorMessage = "Invalid Email Address")]
         [MaxLength(500)]
         public string Email { get; set; }
 
-        [Phone]
-        [MaxLength(25)]
+        [Phone(ErrorMessage = "Invalid Phone Number")]
+        [MaxLength(10, ErrorMessage = "Invalid Phone Length")]
         public string Phone { get; set; }
 
         [DateOfBirth]

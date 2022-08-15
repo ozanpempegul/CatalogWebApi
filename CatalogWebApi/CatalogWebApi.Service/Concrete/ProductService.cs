@@ -79,7 +79,5 @@ namespace CatalogWebApi.Service
 
             return resource;
         }
-
-
     }
 }

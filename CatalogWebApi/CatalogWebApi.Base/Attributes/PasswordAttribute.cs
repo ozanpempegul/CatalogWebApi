@@ -12,14 +12,14 @@ namespace CatalogWebApi.Base
                 string source = value.ToString();
 
                 // Validate pwd must be MD5 format
-                if (!Regex.IsMatch(source, "^[0-9a-fA-F]{32}$", RegexOptions.Compiled))
-                    return new ValidationResult("Password must MD5 format.");
+                if (source.Length < 8 || source.Length > 20)
+                    return new ValidationResult("Invalid Password");
 
                 return ValidationResult.Success;
             }
             catch (Exception)
             {
-                return new ValidationResult("Password must be in MD5 format.");
+                return new ValidationResult("Invalid Password");
             }
         }
     }

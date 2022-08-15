@@ -1,13 +1,3 @@
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Gmail.v1;
-using Google.Apis.Gmail.v1.Data;
-using Google.Apis.Services;
-using Google.Apis.Util.Store;
-using Newtonsoft.Json;
-using System.Net;
-using System.Net.Mail;
-using System.Text;
-
 namespace CatalogWebApi
 {
     public class Program
