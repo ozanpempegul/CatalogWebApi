@@ -5,5 +5,10 @@
         public CategoryRepository(AppDbContext Context) : base(Context)
         {
         }
+
+        public void RemoveAsync(Category category)
+        {
+            Context.Remove(category);
+        }
     }
 }

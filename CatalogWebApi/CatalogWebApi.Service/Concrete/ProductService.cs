@@ -2,6 +2,7 @@
 using CatalogWebApi.Base;
 using CatalogWebApi.Data;
 using CatalogWebApi.Dto;
+using Microsoft.AspNetCore.Http;
 
 namespace CatalogWebApi.Service
 {
@@ -15,14 +16,36 @@ namespace CatalogWebApi.Service
         private readonly IProductRepository productRepository;
 
 
-        public override async Task<BaseResponse<ProductDto>> InsertAsync(ProductDto createProductResource)
+        public override async Task<BaseResponse<ProductDto>> GetByIdAsync(int id)
+        {
+            var tempProduct = await productRepository.GetByIdAsync(id);
+            // Mapping Entity to Resource
+            var result = Mapper.Map<Product, ProductDto>(tempProduct);
+
+            // Convert ByteArray to IFormFile
+            if (tempProduct.Image is not null)
+            {
+                var stream = new MemoryStream(tempProduct.Image);
+                result.Image = new FormFile(stream, 0, tempProduct.Image.Length, result.Name, result.Name);
+            }
+
+            return new BaseResponse<ProductDto>(result);
+        }
+
+        public new async Task<BaseResponse<ProductDto>> InsertAsync(ProductDto createProductResource, int userId, IFormFile image)
         {
             try
             {
-                // Mapping Resource to Product
-                var product = Mapper.Map<ProductDto, Product>(createProductResource);
-                
+                //Mapping IFormFile to Base64String Array
+                var ms = new MemoryStream();
+                image.CopyTo(ms);
+                var fileBytes = ms.ToArray();
+                // act on the Base64 data
 
+                // Mapping Resource to Product               
+                var product = Mapper.Map<ProductDto, Product>(createProductResource);
+                product.Image = fileBytes;
+                product.AccountId = userId;
                 await productRepository.InsertAsync(product);
                 await UnitOfWork.CompleteAsync();
 
@@ -37,7 +60,7 @@ namespace CatalogWebApi.Service
             }
         }
 
-        public override async Task<BaseResponse<ProductDto>> UpdateAsync(int id, ProductDto request)
+        public new async Task<BaseResponse<ProductDto>> UpdateAsync(int id, ProductDto request, int userId)
         {
             try
             {
@@ -47,11 +70,19 @@ namespace CatalogWebApi.Service
                 {
                     return new BaseResponse<ProductDto>("Product_Id_NoData");
                 }
+                if (product.AccountId != userId)
+                {
+                    throw new MessageResultException("This is not your product");
+                }
 
                 product.Name = request.Name;
+                product.Description = request.Description;
                 product.CategoryId = request.CategoryId;
                 product.ColorId = request.ColorId;
                 product.BrandId = request.BrandId;
+                product.IsOfferable = request.IsOfferable;
+                product.IsUsed = request.IsUsed;
+                product.Price = request.Price;
 
                 productRepository.Update(product);
                 await UnitOfWork.CompleteAsync();
@@ -63,7 +94,6 @@ namespace CatalogWebApi.Service
                 throw new MessageResultException("Product_Saving_Error", ex);
             }
         }
-
       
         public async Task<PaginationResponse<IEnumerable<ProductDto>>> GetPaginationAsync(QueryResource pagination, ProductDto filterResource)
         {
@@ -76,6 +106,41 @@ namespace CatalogWebApi.Service
 
             // Using extension-method for pagination
             resource.CreatePaginationResponse(pagination, paginationProduct.total);
+
+            return resource;
+        }
+        public new async Task<BaseResponse<ProductDto>> RemoveAsync(int id, int userId)
+        {
+            try
+            {
+                // Validate Id is existent
+                var tempProduct = await productRepository.GetByIdAsync(id);
+                if (tempProduct is null)
+                    return new BaseResponse<ProductDto>("Id_NoData");
+                if (tempProduct.AccountId != userId)
+                {
+                    return new BaseResponse<ProductDto>("Invalid Product");
+                }
+
+                productRepository.RemoveAsync(tempProduct);
+                await UnitOfWork.CompleteAsync();
+
+                return new BaseResponse<ProductDto>(Mapper.Map<Product, ProductDto>(tempProduct));
+            }
+            catch (Exception ex)
+            {
+                throw new MessageResultException("Deleting_Error", ex);
+            }
+        }
+
+        public async Task<BaseResponse<IEnumerable<ProductDto>>> GetAllByCategoryIdAsync(int categoryId)
+        {
+            // Get list record from DB
+            var tempEntity = await productRepository.GetAllByCategoryIdAsync(categoryId);
+            // Mapping Entity to Resource
+            var result = Mapper.Map<IEnumerable<Product>, IEnumerable<ProductDto>>(tempEntity);
+
+            var resource = new PaginationResponse<IEnumerable<ProductDto>>(result);
 
             return resource;
         }

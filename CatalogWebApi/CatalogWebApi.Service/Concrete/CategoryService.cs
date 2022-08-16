@@ -9,7 +9,10 @@ namespace CatalogWebApi.Service
     {
         public CategoryService(ICategoryRepository categoryRepository, IMapper mapper, IUnitOfWork unitOfWork) : base(categoryRepository, mapper, unitOfWork)
         {
+            this.categoryRepository = categoryRepository;
         }
+
+        private readonly ICategoryRepository categoryRepository;
 
     }
 }

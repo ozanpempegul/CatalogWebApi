@@ -15,7 +15,7 @@ namespace CatalogWebApi.Data
         public DbSet<Color> Color { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<Brand> Brand { get; set; }
-
+        public DbSet<Offer> Offer { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

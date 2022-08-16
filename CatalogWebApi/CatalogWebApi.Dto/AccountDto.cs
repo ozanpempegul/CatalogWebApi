@@ -5,6 +5,7 @@ namespace CatalogWebApi.Dto
 {
     public class AccountDto : BaseDto
     {
+        [Required]
         [UserNameAttribute]
         [MinLength(3)]
         [MaxLength(50)]
@@ -12,7 +13,7 @@ namespace CatalogWebApi.Dto
         public string UserName { get; set; }
 
         [Required]
-        //[PasswordAttribute]
+        [PasswordAttribute]
         public string Password { get; set; }
 
         [Required]

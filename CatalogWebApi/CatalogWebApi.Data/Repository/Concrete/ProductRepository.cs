@@ -30,9 +30,6 @@ namespace CatalogWebApi.Data
 
             if (filterResource != null)
             {
-                //if (!string.IsNullOrEmpty(filterResource.Id.ToString()))
-                //    queryable = queryable.Where(x => x.Id.Equals(filterResource.Id.ToString().RemoveSpaceCharacter()));
-
                 if (!string.IsNullOrEmpty(filterResource.Name))
                 {
                     string Name = filterResource.Name.RemoveSpaceCharacter().ToLower();
@@ -43,14 +40,27 @@ namespace CatalogWebApi.Data
             return queryable;
         }
 
-        public override async Task<Product> GetByIdAsync(int id)
+        public void RemoveAsync(Product product)
         {
-            return await Context.Product.AsSplitQuery().SingleOrDefaultAsync(x => x.Id == id);
+            Context.Remove(product);
         }
 
-        public async Task<int> TotalRecordAsync()
+        // TO DO why is image null
+        public override async Task<Product> GetByIdAsync(int id)
         {
-            return await Context.Product.CountAsync();
+            var result = await Context.Product.AsSplitQuery().SingleOrDefaultAsync(x => x.Id == id);
+            return result;
+        }
+
+        public async Task<IEnumerable<Product>> GetAllByCategoryIdAsync(int categoryId)
+        {
+            return Context.Product.AsSplitQuery().Where(x => x.CategoryId == categoryId).ToList();
+        }
+
+        public bool GetIsOfferable(int id)
+        {
+            var tempProduct = Context.Product.FirstOrDefault(x => x.Id == id);
+            return tempProduct.IsOfferable;
         }
     }
 }

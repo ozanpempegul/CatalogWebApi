@@ -1,4 +1,5 @@
 ﻿using CatalogWebApi.Base;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CatalogWebApi.Data
@@ -18,6 +19,18 @@ namespace CatalogWebApi.Data
         [ForeignKey("brandid")]
         public int BrandId { get; set; }
 
-        public int Id { get; set; }
+        public bool IsDeleted { get; set; }
+
+        public bool IsOfferable { get; set; }
+
+        [ForeignKey("accountid")]
+        public int AccountId { get; set; }        
+
+        public bool IsUsed { get; set; }
+
+        public int Price { get; set; }
+
+        [NotMapped]
+        public byte[] Image { get; set; }
     }
 }

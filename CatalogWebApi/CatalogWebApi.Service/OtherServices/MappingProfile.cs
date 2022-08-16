@@ -13,6 +13,7 @@ namespace CatalogWebApi.Service
             CreateMap<Color, ColorDto>().ReverseMap();
             CreateMap<Brand, BrandDto>().ReverseMap();
             CreateMap<Category, CategoryDto>().ReverseMap();
+            CreateMap<Offer, OfferDto>().ReverseMap();
         }
 
     }

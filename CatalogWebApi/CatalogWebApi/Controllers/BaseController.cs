@@ -19,6 +19,7 @@ namespace CatalogWebApi
 
         [Route("GetAll")]
         [HttpGet]
+        [NonAction]
         public virtual async Task<IActionResult> GetAllAsync()
         {
             var result = await _baseService.GetAllAsync();

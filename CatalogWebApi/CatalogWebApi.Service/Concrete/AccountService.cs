@@ -2,6 +2,8 @@
 using CatalogWebApi.Base;
 using CatalogWebApi.Data;
 using CatalogWebApi.Dto;
+using Hangfire;
+using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Mail;
 using System.Security.Cryptography;
@@ -47,11 +49,11 @@ namespace CatalogWebApi.Service
 
                 // Mapping Resource to Account
                 var tempAccount = Mapper.Map<AccountDto, Account>(createAccountResource);
-
+                tempAccount.LastActivity = DateTime.UtcNow;
                 await accountRepository.InsertAsync(tempAccount);
                 await UnitOfWork.CompleteAsync();
 
-                tempAccount.LastActivity = DateTime.UtcNow;
+                
 
                 return new BaseResponse<AccountDto>(Mapper.Map<Account, AccountDto>(tempAccount));
             }
@@ -108,21 +110,27 @@ namespace CatalogWebApi.Service
                 throw new MessageResultException("Account_Updating_Error", ex);
             }
         }
-
-        public async Task<BaseResponse<AccountDto>> SendEmail(AccountDto createAccountResource)
+        // TO DO change status after 5 try
+        [AutomaticRetry(Attempts = 5, DelaysInSeconds = new int[] { 2, 2, 2, 2, 2}, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
+        public async Task<BaseResponse<AccountDto>> SendEmail(AccountDto createAccountResource, string subject, string body)
         {
+
+            string[] lines = File.ReadAllLines("credentials.txt");
+            string email = lines[0];
+            string password = lines[1];
+
             try
             {
                 SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
                 client.EnableSsl = true;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
                 client.UseDefaultCredentials = false;
-                client.Credentials = new NetworkCredential("mephistopeles11@gmail.com", "otetltwcpvlcrtwx"); // TO DO read it from a file, this is app pasword not the actual password.
+                client.Credentials = new NetworkCredential(email, password); // TO DO read it from a file, this is app pasword not the actual password.
                 MailMessage msgObj = new MailMessage();
                 msgObj.To.Add(createAccountResource.Email);
                 msgObj.From = new MailAddress("mephistopeles11@gmail.com");
-                msgObj.Subject = "Registration";
-                msgObj.Body = "Successfully Registered";
+                msgObj.Subject = subject;
+                msgObj.Body = body;
 
                 client.Send(msgObj);
                 var tempAccount = Mapper.Map<AccountDto, Account>(createAccountResource);

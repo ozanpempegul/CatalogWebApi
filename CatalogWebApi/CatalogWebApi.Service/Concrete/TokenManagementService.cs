@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using CatalogWebApi.Base;
 using CatalogWebApi.Data;
+using CatalogWebApi.Dto;
+using Hangfire;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,14 +19,17 @@ namespace CatalogWebApi.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly byte[] _secret;
         private readonly JwtConfig _jwtConfig;
+        private readonly IAccountService _accountService;
 
-        public TokenManagementService(IAccountRepository accountRepository, IMapper mapper, IUnitOfWork unitOfWork, IOptionsMonitor<JwtConfig> jwtConfig) : base()
+        public TokenManagementService(IAccountRepository accountRepository, IAccountService accountService, IMapper mapper, IUnitOfWork unitOfWork, IOptionsMonitor<JwtConfig> jwtConfig) : base()
         {
             this._accountRepository = accountRepository;
+            this._accountService = accountService;
             this._mapper = mapper;
             this._unitOfWork = unitOfWork;
             this._jwtConfig = jwtConfig.CurrentValue;
             this._secret = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
+
         }
 
         public async Task<BaseResponse<TokenResponse>> GenerateTokensAsync(TokenRequest tokenRequest, DateTime now, string userAgent)
@@ -41,12 +46,24 @@ namespace CatalogWebApi.Service
                 }
                 tokenRequest.Password = MD5Salting(tokenRequest.Password);
 
+                // send email after 3 invalid tries
+                var tempAccount2 = await _accountRepository.GetByEmailAsync(tokenRequest.Email);
+                var tempAccount3 = _mapper.Map<Account, AccountDto>(tempAccount2);
+                if (tempAccount2.invalidtries == 3)
+                {
+                    BackgroundJob.Enqueue(() => _accountService.SendEmail(tempAccount3, "Account is Blocked", "Your Account is Blocked"));
+                    return new BaseResponse<TokenResponse>("Account is blocked");
+                };
+
                 // Validate Login-request
-                var tempAccount = await _accountRepository.ValidateCredentialsAsync(tokenRequest);
+                var tempAccount = await _accountRepository.ValidateCredentialsAsync(tokenRequest);                
                 await _unitOfWork.CompleteAsync();
 
                 if (tempAccount is null)
                     return new BaseResponse<TokenResponse>("Token_Invalid");
+
+
+
 
                 // Get access-token
                 var accessToken = GenerateAccessToken(tempAccount, now);
@@ -66,7 +83,7 @@ namespace CatalogWebApi.Service
             }
             catch (Exception ex)
             {
-                throw new MessageResultException("Token_Saving_Error", ex);
+                throw new MessageResultException($"Token_Saving_Error {ex}");
             }
         }
 

@@ -6,11 +6,7 @@ using CatalogWebApi.Service;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Net.Mail;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace CatalogWebApi
 {
@@ -34,10 +30,10 @@ namespace CatalogWebApi
 
 
         [HttpPost]        
-        public new async Task<IActionResult> CreateAsync([FromBody] AccountDto resource) // public new async Task<IActionResult>
+        public new async Task<IActionResult> CreateAsync([FromBody] AccountDto resource)
         {
             var result = await _accountService.InsertAsync(resource);
-            BackgroundJob.Enqueue(() => _accountService.SendEmail(resource));
+            BackgroundJob.Enqueue(() => _accountService.SendEmail(resource, "Registration" ,"Successfully Registered"));
 
             if (!result.Success)
                 return BadRequest(result);
@@ -53,20 +49,21 @@ namespace CatalogWebApi
             return await base.GetByIdAsync(int.Parse(userId));
         }
 
-        [HttpPut("change-password/{id:int}")]
+        [HttpPut("change-password")]
         [Authorize]
-        public async Task<IActionResult> UpdatePasswordAsync(int id, [FromBody] UpdatePasswordRequest resource)
-        {           
+        public async Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordRequest resource)
+        {
+
             // Check if the id belongs to me
             var identifier = (User.Identity as ClaimsIdentity).FindFirst(ClaimTypes.NameIdentifier).Value;
-            if (!identifier.Equals(id.ToString()))
-                return BadRequest(new BaseResponse<AccountDto>("Account_Not_Permitted"));
+
+            var userId = (User.Identity as ClaimsIdentity).FindFirst("AccountId").Value;
 
             // Checking duplicate password
             if (resource.OldPassword.Equals(resource.NewPassword))
                 return BadRequest(new BaseResponse<AccountDto>("New password must be different."));
 
-            var result = await _accountService.UpdatePasswordAsync(id, resource);
+            var result = await _accountService.UpdatePasswordAsync(int.Parse(userId), resource);
 
             if (!result.Success)
                 return BadRequest(result);
@@ -76,9 +73,10 @@ namespace CatalogWebApi
 
         [HttpDelete("{id:int}")]
         [Authorize]
-        public new async Task<IActionResult> DeleteAsync(int id)
+        public new async Task<IActionResult> DeleteAsync()
         {
-            return await base.DeleteAsync(id);
+            var userId = (User.Identity as ClaimsIdentity).FindFirst("AccountId").Value;
+            return await base.DeleteAsync(int.Parse(userId));
         }
     }
 }

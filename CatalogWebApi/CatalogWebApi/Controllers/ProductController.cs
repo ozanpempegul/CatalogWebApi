@@ -3,8 +3,11 @@ using CatalogWebApi.Base;
 using CatalogWebApi.Data;
 using CatalogWebApi.Dto;
 using CatalogWebApi.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Serilog;
+using System.Security.Claims;
 
 namespace CatalogWebApi
 {
@@ -12,11 +15,13 @@ namespace CatalogWebApi
     [ApiController]
     public class ProductController : BaseController<ProductDto, Product>
     {
-        private readonly IProductService ProductService;
+        private readonly IProductService _productService;        
+        private IMemoryCache _cache;
 
-        public ProductController(IProductService ProductService, IMapper mapper) : base(ProductService, mapper)
+        public ProductController(IProductService productService, IMapper mapper, IMemoryCache cache) : base(productService, mapper)
         {
-            this.ProductService = ProductService;
+            this._productService = productService;
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
 
@@ -27,31 +32,13 @@ namespace CatalogWebApi
 
             QueryResource pagintation = new QueryResource(page, pageSize);
 
-            var result = await ProductService.GetPaginationAsync(pagintation, null);
+            var result = await _productService.GetPaginationAsync(pagintation, null);
 
             if (!result.Success)
                 return BadRequest(result);
 
             if (result.Response is null)
-                return NoContent();
-
-            return Ok(result);
-        }
-
-        [HttpPost("pagination")]
-        public async Task<IActionResult> GetPaginationWithFilterAsync([FromQuery] int page, [FromQuery] int pageSize, [FromBody] ProductDto filterResource)
-        {
-            Log.Information($"{User.Identity?.Name}: get pagination Product.");
-
-            QueryResource pagintation = new QueryResource(page, pageSize);
-
-            var result = await ProductService.GetPaginationAsync(pagintation, filterResource);
-
-            if (!result.Success)
-                return BadRequest(result);
-
-            if (result.Response is null)
-                return NoContent();
+                return NoContent();            
 
             return Ok(result);
         }
@@ -60,16 +47,18 @@ namespace CatalogWebApi
         public new async Task<IActionResult> GetByIdAsync(int id)
         {            
             Log.Information($"{User.Identity?.Name}: get a Product with Id is {id}.");
-
-            return await base.GetByIdAsync(id);
+            var result = await _productService.GetByIdAsync(id);
+            return Ok(result);
         }
 
         [HttpPost]
-        public new async Task<IActionResult> CreateAsync([FromBody] ProductDto resource)
+        [Authorize]
+        public new async Task<IActionResult> CreateAsync([FromQuery] ProductDto resource, IFormFile image)
         {
-            Log.Information($"{User.Identity?.Name}: create a Product.");            
+            Log.Information($"{User.Identity?.Name}: create a Product.");
 
-            var insertResult = await ProductService.InsertAsync(resource);
+            var userId = (User.Identity as ClaimsIdentity).FindFirst("AccountId").Value;
+            var insertResult = await _productService.InsertAsync(resource, int.Parse(userId), image);
 
             if (!insertResult.Success)
                 return BadRequest(insertResult);            
@@ -78,21 +67,64 @@ namespace CatalogWebApi
         }
 
         [HttpPut("{id:int}")]
+        [Authorize]
         public new async Task<IActionResult> UpdateAsync(int id, [FromBody] ProductDto resource)
         {
+            var userId = (User.Identity as ClaimsIdentity).FindFirst("AccountId").Value;
             Log.Information($"{User.Identity?.Name}: update a Product with Id is {id}.");
-
-            return await base.UpdateAsync(id, resource);
+            var updateResult = await _productService.UpdateAsync(id, resource, int.Parse(userId));
+            return StatusCode(202, updateResult);
         }
 
 
         [HttpDelete("{id:int}")]
+        [Authorize]
         public new async Task<IActionResult> DeleteAsync(int id)
         {
             Log.Information($"{User.Identity?.Name}: delete a Product with Id is {id}.");
 
-            return await base.DeleteAsync(id);
+            var userId = (User.Identity as ClaimsIdentity).FindFirst("AccountId").Value;
+
+            var result = await _productService.RemoveAsync(id, int.Parse(userId));
+
+            return Ok();
         }
 
+
+        // TO DO get all from database but show by filter.        
+        [HttpGet("get-by-category-id/{categoryId}")]
+        public new async Task<IActionResult> GetAllByCategoryIdAsync(int categoryId)
+        {
+            
+            BaseResponse<IEnumerable<ProductDto>> default_cache;
+            string productListCacheKey = "productListCacheKey";
+            var result = new List<ProductDto>();
+
+            if (_cache.TryGetValue(productListCacheKey, out default_cache))
+            {
+                result = default_cache.Response.Where(x => x.CategoryId == categoryId).ToList();
+            }
+            else
+            {
+                default_cache = await _productService.GetAllByCategoryIdAsync(categoryId);
+                result = default_cache.Response.Where(x => x.CategoryId == categoryId).ToList();
+
+                if (!default_cache.Success)
+                    return BadRequest(default_cache);
+
+                if (default_cache.Response is null)
+                    return NoContent();
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(60))
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                    .SetPriority(CacheItemPriority.Normal)
+                    .SetSize(1024);
+
+                _cache.Set(productListCacheKey, default_cache, cacheEntryOptions);
+            }
+
+            return Ok(result);
+        }
     }
 }

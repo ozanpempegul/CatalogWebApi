@@ -33,6 +33,8 @@ namespace CatalogWebApi
             services.AddScoped<IBrandService, BrandService>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IOfferRepository, OfferRepository>();
+            services.AddScoped<IOfferService, OfferService>();
 
             // uow
             services.AddScoped<IUnitOfWork, UnitOfWork>();

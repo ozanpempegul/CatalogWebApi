@@ -26,11 +26,11 @@ namespace CatalogWebApi.Data
             {
                 if(accountStored.invalidtries >= 3)
                 {
-                    throw new MessageResultException("account is blocked due to excessive number of tries");
+                    return null; // TO DO change exception to a better version.
                 }
                 else if (accountStored.isdeleted == true)
                 {
-                    throw new MessageResultException("account is deleted");
+                    throw new MessageResultException("account is deleted"); // TO DO change exception to a better version.
                 }
                 // Validate credential
                 bool isValid = accountStored.Password.CheckingPassword(loginResource.Password);
