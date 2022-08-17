@@ -26,7 +26,7 @@ Valid Register
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register1(valid).png)
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register2(valid).png)
 
-Registration Email Service
+Registration Email Service  
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register(email-service).png)
 
 Salting
