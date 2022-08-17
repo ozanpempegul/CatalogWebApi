@@ -3,7 +3,7 @@ Invalid Register 1
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register1(invalid).png)
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register2(invalid).png)
 Invalid Register 2
-![]()https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register(existing-email).png
+![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register(existing-email).png)
 Invalid Register 3
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register(existing-username).png)
 Valid Register
