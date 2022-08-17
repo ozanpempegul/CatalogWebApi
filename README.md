@@ -5,9 +5,8 @@ Change ConnectionStrings->DefaultConnection->Server:{Your Computer Name}
 
 MS SQL needs to be up and running in the background
 
-Then open project in your IDE and enter to your terminal:
-dotnet run --project CatalogWebApi
-Then
+Then open project in your IDE and enter to your terminal:  
+dotnet run --project CatalogWebApi  
 dotnet run
 
 Finally you can open swagger in your web browser
