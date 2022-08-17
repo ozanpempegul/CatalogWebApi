@@ -26,7 +26,7 @@ Valid Register
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register1(valid).png)
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register2(valid).png)
 
-Registration Email Service  
+Registration (Email Service 1)  
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register(email-service).png)
 
 Salting
@@ -39,7 +39,7 @@ Invalid Login
 3 Invalid Login
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/token-controller-3-invalid-tries.png)
 
-Your Account Is Blocked (Email Service 1)
+Your Account Is Blocked (Email Service 2)
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-account-is-blocked(email-service).png)
 
 Valid Login
