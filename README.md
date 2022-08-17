@@ -1,5 +1,17 @@
 # CatalogWebApi
 
+In CatalogWebApi/appsetting.json
+Change ConnectionStrings->DefaultConnection->Server:{Your Computer Name}
+
+MS SQL needs to be up and running in the background
+
+Then open project in your IDE and enter to your terminal:
+dotnet run --project CatalogWebApi
+dotnet run
+
+Finally you can open swagger in your web browser
+https://localhost:7089/swagger/index.html
+
 Invalid Register 1
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register1(invalid).png)
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register2(invalid).png)
