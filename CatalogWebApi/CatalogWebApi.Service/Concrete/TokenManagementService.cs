@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace CatalogWebApi.Service
@@ -20,8 +19,10 @@ namespace CatalogWebApi.Service
         private readonly byte[] _secret;
         private readonly JwtConfig _jwtConfig;
         private readonly IAccountService _accountService;
+        private readonly EmailService _emailService;
+        private readonly MD5AndSaltingService _mD5AndSaltingService;
 
-        public TokenManagementService(IAccountRepository accountRepository, IAccountService accountService, IMapper mapper, IUnitOfWork unitOfWork, IOptionsMonitor<JwtConfig> jwtConfig) : base()
+        public TokenManagementService(IAccountRepository accountRepository, IAccountService accountService, IMapper mapper, IUnitOfWork unitOfWork, IOptionsMonitor<JwtConfig> jwtConfig, EmailService emailService, MD5AndSaltingService mD5AndSaltingService) : base()
         {
             this._accountRepository = accountRepository;
             this._accountService = accountService;
@@ -29,7 +30,8 @@ namespace CatalogWebApi.Service
             this._unitOfWork = unitOfWork;
             this._jwtConfig = jwtConfig.CurrentValue;
             this._secret = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
-
+            this._emailService = emailService;
+            this._mD5AndSaltingService = mD5AndSaltingService;
         }
 
         [AutomaticRetry(Attempts = 5, DelaysInSeconds = new int[] { 2, 2, 2, 2, 2 }, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
@@ -38,14 +40,14 @@ namespace CatalogWebApi.Service
             try
             {
                 // MD5 and Salting
-                tokenRequest.Password = _accountService.MD5Salting(tokenRequest.Password, tokenRequest.Email.Length);
+                tokenRequest.Password = _mD5AndSaltingService.MD5Salting(tokenRequest.Password, tokenRequest.Email);
 
                 // send email after 3 invalid tries
                 var tempAccount2 = await _accountRepository.GetByEmailAsync(tokenRequest.Email);
                 var tempAccount3 = _mapper.Map<Account, AccountDto>(tempAccount2);
                 if (tempAccount2 is not null && tempAccount2.invalidtries == 3)
                 {
-                    BackgroundJob.Enqueue(() => _accountService.SendEmail(tempAccount3, "Account is Blocked", "Your Account is Blocked"));
+                    BackgroundJob.Enqueue(() => _emailService.SendEmail(tempAccount3, "Account is Blocked", "Your Account is Blocked"));
                     return new BaseResponse<TokenResponse>("Account is blocked");
                 };
 

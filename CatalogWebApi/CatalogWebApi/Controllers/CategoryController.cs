@@ -20,21 +20,21 @@ namespace CatalogWebApi
             this._categoryService = categoryService;
         }
 
-        [HttpPost("add-new-category")]
+        [HttpPost]
         [Authorize]
         public new async Task<IActionResult> CreateAsync([FromBody] CategoryDto resource)
         {
             return await base.CreateAsync(resource);
         }
 
-        [HttpPut("update-category")]
+        [HttpPut]
         [Authorize]
         public new async Task<IActionResult> UpdateAsync(int id, [FromBody] CategoryDto resource)
         {
             return await base.UpdateAsync(id, resource);
         }
 
-        [HttpDelete("delete-category")]
+        [HttpDelete]
         [Authorize]
         public new async Task<IActionResult> DeleteAsync(int id)
         {

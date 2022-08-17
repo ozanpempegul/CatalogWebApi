@@ -25,7 +25,7 @@ namespace CatalogWebApi.Dto
         public int BrandId { get; set; }
 
         [Required]
-        public bool IsOfferable { get; set; }
+        public bool IsOfferable { get; set; } = false;
 
         [Required]
         public bool IsUsed { get; set; }

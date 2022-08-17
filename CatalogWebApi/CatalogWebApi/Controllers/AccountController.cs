@@ -15,20 +15,21 @@ namespace CatalogWebApi
     public class AccountController : BaseController<AccountDto, Account>
     {
         private readonly IAccountService _accountService;
+        private readonly EmailService _emailService;
 
-
-        public AccountController(IAccountService accountService, IMapper mapper) : base(accountService, mapper)
+        public AccountController(IAccountService accountService, IMapper mapper, EmailService emailService) : base(accountService, mapper)
         {
             this._accountService = accountService;
+            this._emailService = emailService;
         }
 
 
         [HttpPost("register")]
         [AutomaticRetry(Attempts = 5, DelaysInSeconds = new int[] { 2, 2, 2, 2, 2 }, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
-        public new async Task<IActionResult> CreateAsync([FromQuery] AccountDto resource)
+        public new async Task<IActionResult> CreateAsync([FromBody] AccountDto resource)
         {
             var result = await _accountService.InsertAsync(resource);
-            BackgroundJob.Enqueue(() => _accountService.SendEmail(resource, "Registration" ,"Successfully Registered"));
+            BackgroundJob.Enqueue(() => _emailService.SendEmail(resource, "Registration" ,"Successfully Registered"));
 
             if (!result.Success)
                 return BadRequest(result);
@@ -46,7 +47,7 @@ namespace CatalogWebApi
 
         [HttpPut("change-password")]
         [Authorize]
-        public async Task<IActionResult> UpdatePasswordAsync([FromQuery] UpdatePasswordRequest resource)
+        public async Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordRequest resource)
         {
 
             // Check if the id belongs to me
@@ -66,7 +67,7 @@ namespace CatalogWebApi
             return Ok(result);
         }
 
-        [HttpDelete("delete-my-account")]
+        [HttpDelete]
         [Authorize]
         public new async Task<IActionResult> DeleteAsync()
         {

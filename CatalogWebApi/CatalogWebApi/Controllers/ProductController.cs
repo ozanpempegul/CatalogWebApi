@@ -51,9 +51,9 @@ namespace CatalogWebApi
             return Ok(result);
         }
 
-        [HttpPost("add-new-product")]
+        [HttpPost]
         [Authorize]
-        public new async Task<IActionResult> CreateAsync([FromQuery] ProductDto resource, IFormFile? image)
+        public new async Task<IActionResult> CreateAsync([FromBody] ProductDto resource, IFormFile? image)
         {
             Log.Information($"{User.Identity?.Name}: create a Product.");
 
@@ -66,9 +66,9 @@ namespace CatalogWebApi
             return StatusCode(201, insertResult);
         }
 
-        [HttpPut("update-product/{id:int}")]
+        [HttpPut("{id:int}")]
         [Authorize]
-        public new async Task<IActionResult> UpdateAsync(int id, [FromQuery] ProductDto resource)
+        public new async Task<IActionResult> UpdateAsync(int id, [FromBody] ProductDto resource)
         {
             var userId = (User.Identity as ClaimsIdentity).FindFirst("AccountId").Value;
             Log.Information($"{User.Identity?.Name}: update a Product with Id is {id}.");
@@ -77,7 +77,7 @@ namespace CatalogWebApi
         }
 
 
-        [HttpDelete("delete-product/{id:int}")]
+        [HttpDelete("{id:int}")]
         [Authorize]
         public new async Task<IActionResult> DeleteAsync(int id)
         {
@@ -92,7 +92,7 @@ namespace CatalogWebApi
 
 
         
-        [HttpGet("get-by-category-id/{categoryId}")]
+        [HttpGet("{categoryId}")]
         public new async Task<IActionResult> GetAllByCategoryIdAsync(int categoryId)
         {
             

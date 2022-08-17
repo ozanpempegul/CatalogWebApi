@@ -18,7 +18,7 @@ namespace CatalogWebApi
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync([FromQuery] TokenRequest tokenRequest)
+        public async Task<IActionResult> LoginAsync([FromBody] TokenRequest tokenRequest)
         {
             string userAgent = Request.Headers["User-Agent"].ToString();
             var result = await tokenManagementService.GenerateTokensAsync(tokenRequest, DateTime.UtcNow, userAgent);

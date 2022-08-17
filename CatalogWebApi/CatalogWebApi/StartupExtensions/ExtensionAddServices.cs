@@ -36,6 +36,12 @@ namespace CatalogWebApi
             services.AddScoped<IOfferRepository, OfferRepository>();
             services.AddScoped<IOfferService, OfferService>();
 
+            // MD5 and Salting
+            services.AddScoped<MD5AndSaltingService>();
+
+            // Email Service
+            services.AddScoped<EmailService>();
+
             // uow
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

@@ -13,12 +13,10 @@ namespace CatalogWebApi.Controllers
     public class OfferController : BaseController<OfferDto, Offer>
     {
         private readonly IOfferService _offerService;
-        private readonly IProductRepository productRepository;
 
-        public OfferController(IOfferService offerService, IMapper mapper, IProductRepository productRepository) : base(offerService, mapper)
+        public OfferController(IOfferService offerService, IMapper mapper) : base(offerService, mapper)
         {
-            this._offerService = offerService;
-            this.productRepository = productRepository;
+            this._offerService = offerService;            
         }
 
         [HttpPost("make-offer")]

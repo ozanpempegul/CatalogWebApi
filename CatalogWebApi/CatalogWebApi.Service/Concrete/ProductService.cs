@@ -22,14 +22,6 @@ namespace CatalogWebApi.Service
             // Mapping Entity to Resource
             var result = Mapper.Map<Product, ProductDto>(tempProduct);
 
-            // TO DO
-            // Convert ByteArray to IFormFile
-            //if (tempProduct.Image is not null)
-            //{
-            //    var stream = new MemoryStream(tempProduct.Image);
-            //    result.Image = new FormFile(stream, 0, tempProduct.Image.Length, result.Name, result.Name);
-            //}
-
             return new BaseResponse<ProductDto>(result);
         }
 

@@ -44,8 +44,7 @@ namespace CatalogWebApi.Data
         {
             Context.Remove(product);
         }
-
-        // TO DO why is image null?
+        
         public override async Task<Product> GetByIdAsync(int id)
         {
             var result = await Context.Product.AsSplitQuery().SingleOrDefaultAsync(x => x.Id == id);
