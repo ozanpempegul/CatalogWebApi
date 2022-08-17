@@ -22,37 +22,56 @@ namespace CatalogWebApi.Service
             // Mapping Entity to Resource
             var result = Mapper.Map<Product, ProductDto>(tempProduct);
 
+            // TO DO
             // Convert ByteArray to IFormFile
-            if (tempProduct.Image is not null)
-            {
-                var stream = new MemoryStream(tempProduct.Image);
-                result.Image = new FormFile(stream, 0, tempProduct.Image.Length, result.Name, result.Name);
-            }
+            //if (tempProduct.Image is not null)
+            //{
+            //    var stream = new MemoryStream(tempProduct.Image);
+            //    result.Image = new FormFile(stream, 0, tempProduct.Image.Length, result.Name, result.Name);
+            //}
 
             return new BaseResponse<ProductDto>(result);
         }
 
-        public new async Task<BaseResponse<ProductDto>> InsertAsync(ProductDto createProductResource, int userId, IFormFile image)
+        public new async Task<BaseResponse<ProductDto>> InsertAsync(ProductDto createProductResource, int userId, IFormFile? image)
         {
             try
             {
                 //Mapping IFormFile to Base64String Array
-                var ms = new MemoryStream();
-                image.CopyTo(ms);
-                var fileBytes = ms.ToArray();
-                // act on the Base64 data
+                if(image is not null)
+                {
+                    var ms = new MemoryStream();
+                    image.CopyTo(ms);
+                    var fileBytes = ms.ToArray();
+                    // act on the Base64 data
 
-                // Mapping Resource to Product               
-                var product = Mapper.Map<ProductDto, Product>(createProductResource);
-                product.Image = fileBytes;
-                product.AccountId = userId;
-                await productRepository.InsertAsync(product);
-                await UnitOfWork.CompleteAsync();
+                    // Mapping Resource to Product               
+                    var product = Mapper.Map<ProductDto, Product>(createProductResource);
+                    product.Image = fileBytes;
+                    product.AccountId = userId;
+                    await productRepository.InsertAsync(product);
+                    await UnitOfWork.CompleteAsync();
 
-                // Mappping response
-                var response = Mapper.Map<Product, ProductDto>(product);
+                    // Mappping response
+                    var response = Mapper.Map<Product, ProductDto>(product);
 
-                return new BaseResponse<ProductDto>(response);
+                    return new BaseResponse<ProductDto>(response);
+                }
+                else
+                {
+                    // Mapping Resource to Product               
+                    var product = Mapper.Map<ProductDto, Product>(createProductResource);
+                    product.Image = null;
+                    product.AccountId = userId;
+                    await productRepository.InsertAsync(product);
+                    await UnitOfWork.CompleteAsync();
+
+                    // Mappping response
+                    var response = Mapper.Map<Product, ProductDto>(product);
+
+                    return new BaseResponse<ProductDto>(response);
+                }
+
             }
             catch (Exception ex)
             {
@@ -72,7 +91,7 @@ namespace CatalogWebApi.Service
                 }
                 if (product.AccountId != userId)
                 {
-                    throw new MessageResultException("This is not your product");
+                    return new BaseResponse<ProductDto>("Product you are trying to change is not yours."); ;
                 }
 
                 product.Name = request.Name;
@@ -137,6 +156,18 @@ namespace CatalogWebApi.Service
         {
             // Get list record from DB
             var tempEntity = await productRepository.GetAllByCategoryIdAsync(categoryId);
+            // Mapping Entity to Resource
+            var result = Mapper.Map<IEnumerable<Product>, IEnumerable<ProductDto>>(tempEntity);
+
+            var resource = new PaginationResponse<IEnumerable<ProductDto>>(result);
+
+            return resource;
+        }
+
+        public async Task<BaseResponse<IEnumerable<ProductDto>>> GetAllMyProductsAsync(int userId)
+        {
+            // Get list record from DB
+            var tempEntity = await productRepository.GetAllMyProductsAsync(userId);
             // Mapping Entity to Resource
             var result = Mapper.Map<IEnumerable<Product>, IEnumerable<ProductDto>>(tempEntity);
 

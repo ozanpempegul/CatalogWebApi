@@ -7,7 +7,9 @@ namespace CatalogWebApi.Data
     {        
         Task<(IEnumerable<Product> records, int total)> GetPaginationAsync(QueryResource pagination, ProductDto filterResource);
         Task<IEnumerable<Product>> GetAllByCategoryIdAsync(int categoryId);
-        public void RemoveAsync(Product product);
-        bool GetIsOfferable(int id);
+        void RemoveAsync(Product product);
+        Task<bool> GetIsOfferable(int id);
+        Task<IEnumerable<Product>> GetAllMyProductsAsync(int userId);
+        void SellAsync(Product product);
     }
 }

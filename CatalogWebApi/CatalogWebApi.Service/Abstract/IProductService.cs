@@ -12,5 +12,6 @@ namespace CatalogWebApi.Service
         Task<BaseResponse<ProductDto>> RemoveAsync(int id, int userId);
         Task<PaginationResponse<IEnumerable<ProductDto>>> GetPaginationAsync(QueryResource pagination, ProductDto filterResource);
         Task<BaseResponse<IEnumerable<ProductDto>>> GetAllByCategoryIdAsync(int categoryId);
+        Task<BaseResponse<IEnumerable<ProductDto>>> GetAllMyProductsAsync(int userId);
     }
 }

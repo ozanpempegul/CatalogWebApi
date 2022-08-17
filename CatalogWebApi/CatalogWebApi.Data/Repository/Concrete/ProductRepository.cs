@@ -45,7 +45,7 @@ namespace CatalogWebApi.Data
             Context.Remove(product);
         }
 
-        // TO DO why is image null
+        // TO DO why is image null?
         public override async Task<Product> GetByIdAsync(int id)
         {
             var result = await Context.Product.AsSplitQuery().SingleOrDefaultAsync(x => x.Id == id);
@@ -57,10 +57,21 @@ namespace CatalogWebApi.Data
             return Context.Product.AsSplitQuery().Where(x => x.CategoryId == categoryId).ToList();
         }
 
-        public bool GetIsOfferable(int id)
+        public async Task<bool> GetIsOfferable(int id)
         {
-            var tempProduct = Context.Product.FirstOrDefault(x => x.Id == id);
+            var tempProduct = await GetByIdAsync(id);
             return tempProduct.IsOfferable;
+        }
+
+        public async Task<IEnumerable<Product>> GetAllMyProductsAsync(int userId)
+        {
+            return Context.Product.AsSplitQuery().Where(x => x.AccountId == userId).ToList();
+        }
+
+        public void SellAsync(Product product)
+        {
+            //entities.Remove(entity);
+            product.GetType().GetProperty("issold").SetValue(product, true);
         }
     }
 }

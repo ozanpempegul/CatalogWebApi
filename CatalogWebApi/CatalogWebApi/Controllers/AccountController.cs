@@ -11,7 +11,7 @@ using System.Security.Claims;
 namespace CatalogWebApi
 {
     [ApiController]
-    [Route("protein/v1/api/[controller]")]
+    [Route("catalog/api/[controller]")]
     public class AccountController : BaseController<AccountDto, Account>
     {
         private readonly IAccountService _accountService;
@@ -22,15 +22,10 @@ namespace CatalogWebApi
             this._accountService = accountService;
         }
 
-        [Authorize]
-        public override Task<IActionResult> GetAllAsync()
-        {
-            return base.GetAllAsync();
-        }
 
-
-        [HttpPost]        
-        public new async Task<IActionResult> CreateAsync([FromBody] AccountDto resource)
+        [HttpPost("register")]
+        [AutomaticRetry(Attempts = 5, DelaysInSeconds = new int[] { 2, 2, 2, 2, 2 }, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
+        public new async Task<IActionResult> CreateAsync([FromQuery] AccountDto resource)
         {
             var result = await _accountService.InsertAsync(resource);
             BackgroundJob.Enqueue(() => _accountService.SendEmail(resource, "Registration" ,"Successfully Registered"));
@@ -41,7 +36,7 @@ namespace CatalogWebApi
             return StatusCode(201, result);
         }
 
-        [HttpGet("GetUserDetail")]
+        [HttpGet("my-account")]
         [Authorize]
         public async Task<IActionResult> GetUserDetail()
         {
@@ -51,7 +46,7 @@ namespace CatalogWebApi
 
         [HttpPut("change-password")]
         [Authorize]
-        public async Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordRequest resource)
+        public async Task<IActionResult> UpdatePasswordAsync([FromQuery] UpdatePasswordRequest resource)
         {
 
             // Check if the id belongs to me
@@ -71,7 +66,7 @@ namespace CatalogWebApi
             return Ok(result);
         }
 
-        [HttpDelete("{id:int}")]
+        [HttpDelete("delete-my-account")]
         [Authorize]
         public new async Task<IActionResult> DeleteAsync()
         {

@@ -19,25 +19,25 @@ namespace CatalogWebApi.Service
         public new async Task<BaseResponse<OfferDto>> InsertAsync(OfferDto insertResource, int offeredPrice, bool isPercent)
         {
 
-            if (!productRepository.GetIsOfferable(insertResource.ProductId))
+            if (!await productRepository.GetIsOfferable(insertResource.ProductId))
             {
-                throw new MessageResultException("Product is not offerable");
+                return new BaseResponse<OfferDto>("Product is not offerable");
             }
             var product = await productRepository.GetByIdAsync(insertResource.ProductId);
 
             if (isPercent)
             {
-                if (insertResource.OfferedPrice >= 100)
+                if (offeredPrice >= 100)
                 {
-                    throw new MessageResultException("You cannot offer more than its price.");
+                    return new BaseResponse<OfferDto>("You cannot offer more than its price.");
                 }
                 insertResource.OfferedPrice = product.Price * insertResource.OfferedPrice / 100;
             }
             else
             {
-                if (insertResource.OfferedPrice >= product.Price)
+                if (offeredPrice >= product.Price)
                 {
-                    throw new MessageResultException("You cannot offer more than its price.");
+                    return new BaseResponse<OfferDto>("You cannot offer more than its price.");
                 }
                 insertResource.OfferedPrice = offeredPrice;
             }
@@ -68,10 +68,78 @@ namespace CatalogWebApi.Service
 
                 if (tempOffer.BidderId != userId)
                 {
-                    throw new MessageResultException("Offer is not yours");
+                    return new BaseResponse<OfferDto>("Offer is not yours");
                 }
 
                 offerRepository.RemoveAsync(tempOffer);
+                await UnitOfWork.CompleteAsync();
+
+                return new BaseResponse<OfferDto>(Mapper.Map<Offer, OfferDto>(tempOffer));
+            }
+            catch (Exception ex)
+            {
+                throw new MessageResultException("Deleting_Error", ex);
+            }
+        }
+
+        public async Task<BaseResponse<IEnumerable<OfferDto>>> GetMyOffersAsync(int userId)
+        {
+            try
+            {
+                // Validate Id is existent
+                var tempOffer = await offerRepository.GetByBidderId(userId);
+                if (tempOffer is null)
+                    return new BaseResponse<IEnumerable<OfferDto>>("Id_NoData");
+
+                return new BaseResponse<IEnumerable<OfferDto>>(Mapper.Map<IEnumerable<Offer>, IEnumerable<OfferDto>>(tempOffer));
+            }
+            catch (Exception ex)
+            {
+                throw new MessageResultException("Deleting_Error", ex);
+            }
+        }
+
+        public async Task<BaseResponse<IEnumerable<OfferDto>>> GetMyProductsOffersAsync(int userId)
+        {
+
+            try
+            {
+                List<Offer> tempOffers = new();
+                var myProducts = await productRepository.GetAllMyProductsAsync(userId);
+                foreach (var product in myProducts)
+                {
+                    var tempOffer = await offerRepository.GetByProductId(product.Id);
+                    tempOffers.Add(tempOffer);
+                };
+
+                if (tempOffers is null)
+                    return new BaseResponse<IEnumerable<OfferDto>>("Id_NoData");
+
+                return new BaseResponse<IEnumerable<OfferDto>>(Mapper.Map<IEnumerable<Offer>, IEnumerable<OfferDto>>(tempOffers));
+            }
+            catch (Exception ex)
+            {
+                throw new MessageResultException("Deleting_Error", ex);
+            }
+        }
+
+        public async Task<BaseResponse<OfferDto>> SellAsync(int userId, int offerId)
+        {
+            try
+            {
+                // Validate Id is existent
+                var tempOffer = await offerRepository.GetByIdAsync(offerId);                
+                if (tempOffer is null)
+                    return new BaseResponse<OfferDto>("Id_NoData");
+
+                var tempProduct = await productRepository.GetByIdAsync(tempOffer.ProductId);
+
+                if (userId != tempProduct.AccountId)
+                {
+                    return new BaseResponse<OfferDto>("Product is not yours");
+                }
+
+                productRepository.SellAsync(tempProduct);
                 await UnitOfWork.CompleteAsync();
 
                 return new BaseResponse<OfferDto>(Mapper.Map<Offer, OfferDto>(tempOffer));

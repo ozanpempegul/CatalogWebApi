@@ -2,11 +2,13 @@
 using CatalogWebApi.Data;
 using CatalogWebApi.Dto;
 using CatalogWebApi.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace CatalogWebApi
 {
-    [Route("protein/v1/api/[controller]")]
+    [Route("catalog/api/[controller]")]
     [ApiController]
     public class CategoryController : BaseController<CategoryDto, Category>
     {
@@ -18,22 +20,25 @@ namespace CatalogWebApi
             this._categoryService = categoryService;
         }
 
-        [HttpDelete]
-        public new async Task<IActionResult> DeleteAsync(int id)
-        {
-            return await base.DeleteAsync(id);
-        }
-
-        [HttpPost]
+        [HttpPost("add-new-category")]
+        [Authorize]
         public new async Task<IActionResult> CreateAsync([FromBody] CategoryDto resource)
         {
             return await base.CreateAsync(resource);
         }
 
-        [HttpPut]
+        [HttpPut("update-category")]
+        [Authorize]
         public new async Task<IActionResult> UpdateAsync(int id, [FromBody] CategoryDto resource)
         {
             return await base.UpdateAsync(id, resource);
+        }
+
+        [HttpDelete("delete-category")]
+        [Authorize]
+        public new async Task<IActionResult> DeleteAsync(int id)
+        {
+            return await base.DeleteAsync(id);
         }
     }
 }

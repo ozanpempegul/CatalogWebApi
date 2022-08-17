@@ -32,24 +32,18 @@ namespace CatalogWebApi.Service
 
         }
 
+        [AutomaticRetry(Attempts = 5, DelaysInSeconds = new int[] { 2, 2, 2, 2, 2 }, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
         public async Task<BaseResponse<TokenResponse>> GenerateTokensAsync(TokenRequest tokenRequest, DateTime now, string userAgent)
         {
             try
             {
-                //MD5 hash and salting 
-                string MD5Salting(string pwd)
-                {
-                    MD5 md5 = new MD5CryptoServiceProvider();
-                    byte[] bytes = md5.ComputeHash(Encoding.Unicode.GetBytes(pwd));
-                    string result = BitConverter.ToString(bytes).Replace("-", String.Empty);
-                    return result.ToLower();
-                }
-                tokenRequest.Password = MD5Salting(tokenRequest.Password);
+                // MD5 and Salting
+                tokenRequest.Password = _accountService.MD5Salting(tokenRequest.Password, tokenRequest.Email.Length);
 
                 // send email after 3 invalid tries
                 var tempAccount2 = await _accountRepository.GetByEmailAsync(tokenRequest.Email);
                 var tempAccount3 = _mapper.Map<Account, AccountDto>(tempAccount2);
-                if (tempAccount2.invalidtries == 3)
+                if (tempAccount2 is not null && tempAccount2.invalidtries == 3)
                 {
                     BackgroundJob.Enqueue(() => _accountService.SendEmail(tempAccount3, "Account is Blocked", "Your Account is Blocked"));
                     return new BaseResponse<TokenResponse>("Account is blocked");

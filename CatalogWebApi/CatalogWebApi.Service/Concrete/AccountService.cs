@@ -2,8 +2,6 @@
 using CatalogWebApi.Base;
 using CatalogWebApi.Data;
 using CatalogWebApi.Dto;
-using Hangfire;
-using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Mail;
 using System.Security.Cryptography;
@@ -37,15 +35,9 @@ namespace CatalogWebApi.Service
 
             try
             {
+                
                 //MD5andSalting
-                string MD5Salting(string pwd)
-                {
-                    MD5 md5 = new MD5CryptoServiceProvider();
-                    byte[] bytes = md5.ComputeHash(Encoding.Unicode.GetBytes(pwd));
-                    string result = BitConverter.ToString(bytes).Replace("-", String.Empty);
-                    return result.ToLower();
-                }
-                createAccountResource.Password = MD5Salting(createAccountResource.Password);
+                createAccountResource.Password = MD5Salting(createAccountResource.Password, createAccountResource.Email.Length);
 
                 // Mapping Resource to Account
                 var tempAccount = Mapper.Map<AccountDto, Account>(createAccountResource);
@@ -94,11 +86,15 @@ namespace CatalogWebApi.Service
                 var tempAccount = await accountRepository.GetByIdAsync(id, hasToken: true);
                 if (tempAccount is null)
                     return new BaseResponse<AccountDto>("Account_NoData");
-                if (!tempAccount.Password.CheckingPassword(resource.OldPassword))
+
+                resource.OldPassword = MD5Salting(resource.OldPassword, tempAccount.Email.Length);
+
+                if (resource.OldPassword != tempAccount.Password)
                     return new BaseResponse<AccountDto>("Account_Password_Error");
 
+                
                 // Update infomation
-                tempAccount.Password = resource.NewPassword;
+                tempAccount.Password = MD5Salting(resource.NewPassword,tempAccount.Email.Length);
                 tempAccount.LastActivity = DateTime.UtcNow;
 
                 await UnitOfWork.CompleteAsync();
@@ -110,8 +106,8 @@ namespace CatalogWebApi.Service
                 throw new MessageResultException("Account_Updating_Error", ex);
             }
         }
-        // TO DO change status after 5 try
-        [AutomaticRetry(Attempts = 5, DelaysInSeconds = new int[] { 2, 2, 2, 2, 2}, OnAttemptsExceeded = AttemptsExceededAction.Fail)]
+        
+        
         public async Task<BaseResponse<AccountDto>> SendEmail(AccountDto createAccountResource, string subject, string body)
         {
 
@@ -125,7 +121,10 @@ namespace CatalogWebApi.Service
                 client.EnableSsl = true;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
                 client.UseDefaultCredentials = false;
-                client.Credentials = new NetworkCredential(email, password); // TO DO read it from a file, this is app pasword not the actual password.
+
+                // reading it from credentials.txt, password is app pasword not the actual password of the email.
+                client.Credentials = new NetworkCredential(email, password);
+
                 MailMessage msgObj = new MailMessage();
                 msgObj.To.Add(createAccountResource.Email);
                 msgObj.From = new MailAddress("mephistopeles11@gmail.com");
@@ -142,6 +141,17 @@ namespace CatalogWebApi.Service
                 throw new MessageResultException("Sending_Email_Failed", ex);
             }
 
+        }
+
+        // TO DO each password should be different in database. Use user email maybe? (Since it is unique.)
+        //MD5 and Salting
+        public string MD5Salting(string pwd, int emailLength)
+        {
+            MD5 md5 = new MD5CryptoServiceProvider();
+            byte[] bytes = new byte[emailLength];
+            bytes = md5.ComputeHash(Encoding.Unicode.GetBytes(pwd));
+            string result = BitConverter.ToString(bytes).Replace("-", String.Empty);
+            return result.ToLower();
         }
     }
 }

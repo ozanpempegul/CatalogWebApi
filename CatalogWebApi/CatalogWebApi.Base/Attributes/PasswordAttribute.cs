@@ -9,8 +9,7 @@ namespace CatalogWebApi.Base
             try
             {
                 string source = value.ToString();
-
-                // Validate pwd must be MD5 format
+                
                 if (source.Length < 8 || source.Length > 20)
                     return new ValidationResult("Invalid Password");
 

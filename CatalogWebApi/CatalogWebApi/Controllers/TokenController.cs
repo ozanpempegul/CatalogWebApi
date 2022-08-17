@@ -6,7 +6,7 @@ using Serilog;
 namespace CatalogWebApi
 {
     [ApiController]
-    [Route("protein/v1/api/[controller]")]
+    [Route("catalog/api/[controller]")]
     public class TokenController : ControllerBase
     {
         private readonly ITokenManagementService tokenManagementService;
@@ -17,8 +17,8 @@ namespace CatalogWebApi
         }
 
 
-        [HttpPost]
-        public async Task<IActionResult> LoginAsync([FromBody] TokenRequest tokenRequest)
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginAsync([FromQuery] TokenRequest tokenRequest)
         {
             string userAgent = Request.Headers["User-Agent"].ToString();
             var result = await tokenManagementService.GenerateTokensAsync(tokenRequest, DateTime.UtcNow, userAgent);

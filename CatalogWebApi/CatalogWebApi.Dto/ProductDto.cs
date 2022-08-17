@@ -1,7 +1,5 @@
 ﻿using CatalogWebApi.Base;
-using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CatalogWebApi.Dto
 {
@@ -34,8 +32,5 @@ namespace CatalogWebApi.Dto
 
         [Required]
         public int Price { get; set; }
-
-        [NotMapped]
-        public IFormFile Image { get; set; }
     }
 }

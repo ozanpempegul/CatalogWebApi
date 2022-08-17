@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace CatalogWebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("catalog/api/[controller]")]
     [ApiController]
     public class OfferController : BaseController<OfferDto, Offer>
     {
@@ -21,14 +21,10 @@ namespace CatalogWebApi.Controllers
             this.productRepository = productRepository;
         }
 
-        [HttpPost]
+        [HttpPost("make-offer")]
         [Authorize]
         public new async Task<IActionResult> CreateAsync(int productId, int offeredPrice, bool isPercent)
         {
-            if(!productRepository.GetIsOfferable(productId))
-            {
-                BadRequest("Product is not offerable");
-            }
             OfferDto resource = new();
             resource.ProductId = productId;
             var userId = (User.Identity as ClaimsIdentity).FindFirst("AccountId").Value;
@@ -41,7 +37,7 @@ namespace CatalogWebApi.Controllers
             return StatusCode(201, result);
         }
 
-        [HttpDelete]
+        [HttpDelete("cancel-offer")]
         [Authorize]
         public new async Task<IActionResult> DeleteAsync(int id)
         {
@@ -53,6 +49,47 @@ namespace CatalogWebApi.Controllers
                 return BadRequest(result);
 
             return StatusCode(201, result);
+        }
+
+        [HttpGet("my-offers")]
+        [Authorize]
+        public new async Task<IActionResult> GetMyOffers()
+        {
+            var userId = (User.Identity as ClaimsIdentity).FindFirst("AccountId").Value;
+            var result = await _offerService.GetMyOffersAsync(int.Parse(userId));
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            if (result.Response is null)
+                return NoContent();
+
+            return Ok(result);
+        }
+
+        [HttpGet("my-products-offers")]
+        [Authorize]
+        public new async Task<IActionResult> GetMyProductsOffers()
+        {
+            var userId = (User.Identity as ClaimsIdentity).FindFirst("AccountId").Value;
+            var result = await _offerService.GetMyProductsOffersAsync(int.Parse(userId));
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            if (result.Response is null)
+                return NoContent();
+
+            return Ok(result);
+        }
+
+        [HttpDelete("sell-by-id/{offerId}")]
+        [Authorize]
+        public new async Task<IActionResult> SellAsync(int offerId)
+        {
+            var userId = (User.Identity as ClaimsIdentity).FindFirst("AccountId").Value;
+            var result = await _offerService.SellAsync(int.Parse(userId), offerId);
+            return Ok(result);
         }
     }
 }

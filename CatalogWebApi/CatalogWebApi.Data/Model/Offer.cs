@@ -7,7 +7,6 @@ namespace CatalogWebApi.Data
         public int ProductId { get; set; }
         public int BidderId { get; set; }
         public int OfferedPrice { get; set; }
-        public bool IsCancelled { get; set; }
 
     }
 }

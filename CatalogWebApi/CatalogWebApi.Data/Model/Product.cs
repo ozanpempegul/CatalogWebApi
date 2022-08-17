@@ -32,5 +32,8 @@ namespace CatalogWebApi.Data
 
         [NotMapped]
         public byte[] Image { get; set; }
+
+        public bool issold { get; set; }
+
     }
 }
