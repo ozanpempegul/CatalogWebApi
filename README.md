@@ -9,7 +9,7 @@ Then open project in your IDE and enter to your terminal:
 dotnet run --project CatalogWebApi  
 dotnet run
 
-Finally you can open swagger in your web browser
+Finally you can open swagger in your web browser  
 https://localhost:7089/swagger/index.html
 
 Invalid Register 1
