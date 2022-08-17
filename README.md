@@ -48,6 +48,7 @@ Get By Product Id
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/product-controller-get-by-id.png)
 
 Pagination
+
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/product-controller-get-pagination.png)
 
 Get Product By Category Id (cache)
