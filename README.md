@@ -1,16 +1,21 @@
 # CatalogWebApi
 
 In CatalogWebApi/appsetting.json
-Change ConnectionStrings->DefaultConnection->Server:{Your Computer Name}
-
-MS SQL needs to be up and running in the background
+Change ConnectionStrings->DefaultConnection->Server:{Your Computer Name}  
 
 Then open project in your IDE and enter to your terminal:  
 dotnet run --project CatalogWebApi  
 dotnet run
 
+MS SQL needs to be up and running in the background
+
 Finally you can open swagger in your web browser  
-https://localhost:7089/swagger/index.html
+https://localhost:7089/swagger/index.html  
+
+Bugs (or missing features):  
+1. In order to add image to the database as a byte array, you need to remove [NotMapped] Attribute from the image property from Product Model.
+But if you do that, you will get unexpected Exceptions while getting datas without images. (It is not recommended.)  
+2. Tests will be added. (Hopefully)  
 
 Invalid Register 1
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register1(invalid).png)
