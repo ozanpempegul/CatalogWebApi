@@ -68,8 +68,7 @@ namespace CatalogWebApi.Data
         }
 
         public void SellAsync(Product product)
-        {
-            //entities.Remove(entity);
+        {            
             product.GetType().GetProperty("issold").SetValue(product, true);
         }
     }

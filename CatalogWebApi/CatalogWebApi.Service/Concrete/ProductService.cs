@@ -148,6 +148,8 @@ namespace CatalogWebApi.Service
         {
             // Get list record from DB
             var tempEntity = await productRepository.GetAllByCategoryIdAsync(categoryId);
+            if (tempEntity is null)
+                return new BaseResponse<IEnumerable<ProductDto>>("Id_NoData");
             // Mapping Entity to Resource
             var result = Mapper.Map<IEnumerable<Product>, IEnumerable<ProductDto>>(tempEntity);
 
@@ -160,6 +162,8 @@ namespace CatalogWebApi.Service
         {
             // Get list record from DB
             var tempEntity = await productRepository.GetAllMyProductsAsync(userId);
+            if (tempEntity is null)
+                return new BaseResponse<IEnumerable<ProductDto>>("No Data");
             // Mapping Entity to Resource
             var result = Mapper.Map<IEnumerable<Product>, IEnumerable<ProductDto>>(tempEntity);
 

@@ -19,10 +19,10 @@ namespace CatalogWebApi.Data
             return await queryable.AsNoTracking().ToListAsync();
         }
 
-        public async Task<Offer> GetByProductId(int productId)
+        public async Task<IEnumerable<Offer>> GetByProductId(int productId)
         {
             var queryable = Context.Offer.Where(x => x.ProductId.Equals(productId));
-            return await queryable.FirstOrDefaultAsync();
+            return await queryable.AsNoTracking().ToListAsync();
         }
 
         public override async Task<Offer> GetByIdAsync(int id)

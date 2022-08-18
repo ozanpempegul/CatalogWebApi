@@ -53,7 +53,7 @@ namespace CatalogWebApi
 
         [HttpPost]
         [Authorize]
-        public new async Task<IActionResult> CreateAsync([FromBody] ProductDto resource, IFormFile? image)
+        public new async Task<IActionResult> CreateAsync([FromQuery] ProductDto resource, IFormFile? image)
         {
             Log.Information($"{User.Identity?.Name}: create a Product.");
 

@@ -95,31 +95,35 @@ namespace CatalogWebApi.Service
             }
             catch (Exception ex)
             {
-                throw new MessageResultException("Deleting_Error", ex);
+                throw new MessageResultException("Listing_Error", ex);
             }
         }
 
-        public async Task<BaseResponse<IEnumerable<OfferDto>>> GetMyProductsOffersAsync(int userId)
+        public async Task<BaseResponse<IEnumerable<IEnumerable<OfferDto>>>> GetMyProductsOffersAsync(int userId)
         {
 
             try
             {
-                List<Offer> tempOffers = new();
+                List<IEnumerable<Offer>> tempOffersAll = new();
                 var myProducts = await productRepository.GetAllMyProductsAsync(userId);
+
+                if (myProducts is null)
+                    return new BaseResponse<IEnumerable<IEnumerable<OfferDto>>>("NoData");
+
                 foreach (var product in myProducts)
                 {
-                    var tempOffer = await offerRepository.GetByProductId(product.Id);
-                    tempOffers.Add(tempOffer);
+                    var tempOffersByProductId = await offerRepository.GetByProductId(product.Id);
+                    tempOffersAll.Add(tempOffersByProductId);
                 };
 
-                if (tempOffers is null)
-                    return new BaseResponse<IEnumerable<OfferDto>>("Id_NoData");
+                if (tempOffersAll is null)
+                    return new BaseResponse<IEnumerable<IEnumerable<OfferDto>>>("Id_NoData");
 
-                return new BaseResponse<IEnumerable<OfferDto>>(Mapper.Map<IEnumerable<Offer>, IEnumerable<OfferDto>>(tempOffers));
+                return new BaseResponse<IEnumerable<IEnumerable<OfferDto>>>(Mapper.Map<IEnumerable<IEnumerable<Offer>>, IEnumerable<IEnumerable<OfferDto>>>(tempOffersAll));
             }
             catch (Exception ex)
             {
-                throw new MessageResultException("Deleting_Error", ex);
+                throw new MessageResultException("Listing_Error", ex);
             }
         }
 
@@ -128,7 +132,7 @@ namespace CatalogWebApi.Service
             try
             {
                 // Validate Id is existent
-                var tempOffer = await offerRepository.GetByIdAsync(offerId);                
+                var tempOffer = await offerRepository.GetByIdAsync(offerId);
                 if (tempOffer is null)
                     return new BaseResponse<OfferDto>("Id_NoData");
 
@@ -139,14 +143,23 @@ namespace CatalogWebApi.Service
                     return new BaseResponse<OfferDto>("Product is not yours");
                 }
 
-                productRepository.SellAsync(tempProduct);
+                productRepository.SellAsync(tempProduct);                
+                var tempOffers = await offerRepository.GetByProductId(tempOffer.ProductId);
+                foreach (var offer in tempOffers)
+                {
+                    if (offer.Id != offerId)
+                    {
+                        offerRepository.RemoveAsync(offer);
+                        await UnitOfWork.CompleteAsync();
+                    }                        
+                }
                 await UnitOfWork.CompleteAsync();
 
                 return new BaseResponse<OfferDto>(Mapper.Map<Offer, OfferDto>(tempOffer));
             }
             catch (Exception ex)
             {
-                throw new MessageResultException("Deleting_Error", ex);
+                throw new MessageResultException("Selling_Error", ex);
             }
         }
     }
