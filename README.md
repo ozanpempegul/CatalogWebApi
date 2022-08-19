@@ -1,13 +1,14 @@
 # CatalogWebApi
 
-In CatalogWebApi/appsetting.json
-Change ConnectionStrings->DefaultConnection->Server:{Your Computer Name}  
+Create new database named "graduationproject" in Microsoft SQL Server.
+You need to create 5 tables: Account, Brand, Category, Color, Product. (You can find queries in "DATABASE QUERIES" file.)
 
-Then open project in your IDE and enter to your terminal:  
+In CatalogWebApi/appsetting.json
+Change ConnectionStrings->DefaultConnection->Server:{Your Server Name}  
+
+Then open TERMINAL in your IDE and:  
 dotnet run --project CatalogWebApi  
 dotnet run
-
-MS SQL needs to be up and running in the background
 
 Finally you can open swagger in your web browser  
 https://localhost:7089/swagger/index.html  
@@ -16,6 +17,7 @@ Bugs (or missing features):
 1. In order to add image to the database as a byte array, you need to remove [NotMapped] Attribute from the image property from Product Model.
 But if you do that, you will get unexpected Exceptions while getting datas without images. (It is not recommended.)  
 2. Tests will be added. (Hopefully)  
+
 
 Invalid Register 1
 ![](https://github.com/ozanpempegul/CatalogWebApi/blob/main/images/account-controller-register1(invalid).png)
