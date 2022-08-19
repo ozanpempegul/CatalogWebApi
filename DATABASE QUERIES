@@ -1,0 +1,191 @@
+/****** ACCOUNT TABLE QUERY ******/
+
+USE [graduationproject]
+GO
+
+/****** Object:  Table [dbo].[account]    Script Date: 19-Aug-22 4:53:54 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[account](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[username] [varchar](50) NOT NULL,
+	[password] [varchar](50) NOT NULL,
+	[firstname] [varchar](50) NOT NULL,
+	[lastname] [varchar](50) NOT NULL,
+	[email] [varchar](50) NOT NULL,
+	[phone] [varchar](10) NOT NULL,
+	[dateofbirth] [date] NULL,
+	[lastactivity] [datetime] NULL,
+	[isdeleted] [bit] NULL,
+	[invalidtries] [int] NOT NULL,
+ CONSTRAINT [PK_account] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[account] ADD  CONSTRAINT [DF_account_isdeleted]  DEFAULT ((0)) FOR [isdeleted]
+GO
+
+ALTER TABLE [dbo].[account] ADD  CONSTRAINT [DF_account_invalidtries]  DEFAULT ((0)) FOR [invalidtries]
+GO
+
+
+
+
+/****** BRAND TABLE QUERY ******/
+
+
+USE [graduationproject]
+GO
+
+/****** Object:  Table [dbo].[brand]    Script Date: 19-Aug-22 4:56:56 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[brand](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[brand] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_brand] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+
+/****** CATEGORY TABLE QUERY ******/
+
+
+USE [graduationproject]
+GO
+
+/****** Object:  Table [dbo].[category]    Script Date: 19-Aug-22 4:57:39 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[category](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[category] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_category] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+
+/****** COLOR TABLE QUERY ******/
+
+
+USE [graduationproject]
+GO
+
+/****** Object:  Table [dbo].[color]    Script Date: 19-Aug-22 4:57:57 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[color](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[color] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_color] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+
+/****** PRODUCT TABLE QUERY ******/
+
+
+USE [graduationproject]
+GO
+
+/****** Object:  Table [dbo].[product]    Script Date: 19-Aug-22 4:58:14 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[product](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[name] [varchar](100) NOT NULL,
+	[description] [varchar](500) NOT NULL,
+	[categoryid] [int] NOT NULL,
+	[colorid] [int] NOT NULL,
+	[brandid] [int] NOT NULL,
+	[isdeleted] [bit] NOT NULL,
+	[isofferable] [bit] NULL,
+	[accountid] [int] NOT NULL,
+	[isused] [bit] NOT NULL,
+	[price] [int] NOT NULL,
+	[offers] [nchar](10) NULL,
+	[image] [varbinary](max) NULL,
+	[issold] [bit] NOT NULL,
+ CONSTRAINT [PK_product] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[product] ADD  CONSTRAINT [DF_product_isdeleted]  DEFAULT ((0)) FOR [isdeleted]
+GO
+
+ALTER TABLE [dbo].[product] ADD  CONSTRAINT [DF_product_isused]  DEFAULT ((0)) FOR [isused]
+GO
+
+ALTER TABLE [dbo].[product] ADD  CONSTRAINT [DF_product_issold]  DEFAULT ((0)) FOR [issold]
+GO
+
+ALTER TABLE [dbo].[product]  WITH CHECK ADD  CONSTRAINT [FK_product_account] FOREIGN KEY([accountid])
+REFERENCES [dbo].[account] ([id])
+GO
+
+ALTER TABLE [dbo].[product] CHECK CONSTRAINT [FK_product_account]
+GO
+
+ALTER TABLE [dbo].[product]  WITH CHECK ADD  CONSTRAINT [FK_product_brand] FOREIGN KEY([brandid])
+REFERENCES [dbo].[brand] ([id])
+GO
+
+ALTER TABLE [dbo].[product] CHECK CONSTRAINT [FK_product_brand]
+GO
+
+ALTER TABLE [dbo].[product]  WITH CHECK ADD  CONSTRAINT [FK_product_category] FOREIGN KEY([categoryid])
+REFERENCES [dbo].[category] ([id])
+GO
+
+ALTER TABLE [dbo].[product] CHECK CONSTRAINT [FK_product_category]
+GO
+
+ALTER TABLE [dbo].[product]  WITH CHECK ADD  CONSTRAINT [FK_product_color] FOREIGN KEY([colorid])
+REFERENCES [dbo].[color] ([id])
+GO
+
+ALTER TABLE [dbo].[product] CHECK CONSTRAINT [FK_product_color]
+GO
+
+
