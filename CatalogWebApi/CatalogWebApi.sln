@@ -5,13 +5,13 @@ VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CatalogWebApi", "CatalogWebApi\CatalogWebApi.csproj", "{E80A0650-5D89-4E26-96AF-952447BD906D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatalogWebApi.Base", "CatalogWebApi.Base\CatalogWebApi.Base.csproj", "{AAC77BEA-1422-4EF7-A92B-9545960EAA53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CatalogWebApi.Base", "CatalogWebApi.Base\CatalogWebApi.Base.csproj", "{AAC77BEA-1422-4EF7-A92B-9545960EAA53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatalogWebApi.Data", "CatalogWebApi.Data\CatalogWebApi.Data.csproj", "{B14D3A21-B449-4FB3-A255-DE7BCBBB598B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CatalogWebApi.Data", "CatalogWebApi.Data\CatalogWebApi.Data.csproj", "{B14D3A21-B449-4FB3-A255-DE7BCBBB598B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatalogWebApi.Dto", "CatalogWebApi.Dto\CatalogWebApi.Dto.csproj", "{3F4418AE-899E-4842-96D9-72EDDCF69CEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CatalogWebApi.Dto", "CatalogWebApi.Dto\CatalogWebApi.Dto.csproj", "{3F4418AE-899E-4842-96D9-72EDDCF69CEF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatalogWebApi.Service", "CatalogWebApi.Service\CatalogWebApi.Service.csproj", "{DDE1C83F-163E-429C-B928-E1875289B87C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CatalogWebApi.Service", "CatalogWebApi.Service\CatalogWebApi.Service.csproj", "{DDE1C83F-163E-429C-B928-E1875289B87C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
