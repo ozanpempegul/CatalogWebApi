@@ -31,7 +31,7 @@ namespace CatalogWebApi.Service
                 {
                     return new BaseResponse<OfferDto>("You cannot offer more than its price.");
                 }
-                insertResource.OfferedPrice = product.Price * insertResource.OfferedPrice / 100;
+                insertResource.OfferedPrice = product.Price * offeredPrice / 100;
             }
             else
             {
