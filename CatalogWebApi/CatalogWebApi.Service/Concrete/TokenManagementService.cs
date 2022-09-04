@@ -18,19 +18,17 @@ namespace CatalogWebApi.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly byte[] _secret;
         private readonly JwtConfig _jwtConfig;
-        private readonly IAccountService _accountService;
-        private readonly EmailService _emailService;
+        private readonly IEmailSender _emailSender;
         private readonly MD5AndSaltingService _mD5AndSaltingService;
 
-        public TokenManagementService(IAccountRepository accountRepository, IAccountService accountService, IMapper mapper, IUnitOfWork unitOfWork, IOptionsMonitor<JwtConfig> jwtConfig, EmailService emailService, MD5AndSaltingService mD5AndSaltingService) : base()
+        public TokenManagementService(IAccountRepository accountRepository, IAccountService accountService, IMapper mapper, IUnitOfWork unitOfWork, IOptionsMonitor<JwtConfig> jwtConfig, IEmailSender emailSender, MD5AndSaltingService mD5AndSaltingService) : base()
         {
             this._accountRepository = accountRepository;
-            this._accountService = accountService;
             this._mapper = mapper;
             this._unitOfWork = unitOfWork;
             this._jwtConfig = jwtConfig.CurrentValue;
             this._secret = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
-            this._emailService = emailService;
+            this._emailSender = emailSender;
             this._mD5AndSaltingService = mD5AndSaltingService;
         }
 
@@ -45,9 +43,11 @@ namespace CatalogWebApi.Service
                 // send email after 3 invalid tries
                 var tempAccount2 = await _accountRepository.GetByEmailAsync(tokenRequest.Email);
                 var tempAccount3 = _mapper.Map<Account, AccountDto>(tempAccount2);
+
+                var message = new Message(tempAccount3.Email, "Your Account is Blocked", "Your account has been blocked due to excessive amount of tries.");                
                 if (tempAccount2 is not null && tempAccount2.invalidtries == 3)
                 {
-                    BackgroundJob.Enqueue(() => _emailService.SendEmail(tempAccount3, "Account is Blocked", "Your Account is Blocked"));
+                    BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(message));
                     return new BaseResponse<TokenResponse>("Account is blocked");
                 };
 

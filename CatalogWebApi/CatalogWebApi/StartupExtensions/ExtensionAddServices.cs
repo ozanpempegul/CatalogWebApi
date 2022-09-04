@@ -35,12 +35,11 @@ namespace CatalogWebApi
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IOfferRepository, OfferRepository>();
             services.AddScoped<IOfferService, OfferService>();
+            services.AddScoped<IEmailSender, EmailSender>();
+
 
             // MD5 and Salting
-            services.AddScoped<MD5AndSaltingService>();
-
-            // Email Service
-            services.AddScoped<EmailService>();
+            services.AddScoped<MD5AndSaltingService>();            
 
             // uow
             services.AddScoped<IUnitOfWork, UnitOfWork>();

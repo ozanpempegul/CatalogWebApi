@@ -15,12 +15,12 @@ namespace CatalogWebApi
     public class AccountController : BaseController<AccountDto, Account>
     {
         private readonly IAccountService _accountService;
-        private readonly EmailService _emailService;
+        private readonly IEmailSender _emailSender;
 
-        public AccountController(IAccountService accountService, IMapper mapper, EmailService emailService) : base(accountService, mapper)
+        public AccountController(IAccountService accountService, IMapper mapper, IEmailSender emailSender) : base(accountService, mapper)
         {
             this._accountService = accountService;
-            this._emailService = emailService;
+            this._emailSender = emailSender;
         }
 
 
@@ -29,7 +29,10 @@ namespace CatalogWebApi
         public new async Task<IActionResult> CreateAsync([FromBody] AccountDto resource)
         {
             var result = await _accountService.InsertAsync(resource);
-            BackgroundJob.Enqueue(() => _emailService.SendEmail(resource, "Registration" ,"Successfully Registered"));
+
+            var message = new Message(resource.Email, "Welcome", "Successfully Registered");
+
+            BackgroundJob.Enqueue(() => _emailSender.SendEmail(message));
 
             if (!result.Success)
                 return BadRequest(result);

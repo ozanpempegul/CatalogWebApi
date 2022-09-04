@@ -1,4 +1,5 @@
 ﻿using CatalogWebApi.Base;
+using CatalogWebApi.Dto;
 using Hangfire;
 using Microsoft.AspNetCore.Diagnostics;
 using System.Net;
@@ -19,6 +20,11 @@ namespace CatalogWebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            //Email Service
+            var emailConfig = Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+            services.AddSingleton(emailConfig);
+
 
             // Configure JWT Bearer
             JwtConfig = Configuration.GetSection("JwtConfig").Get<JwtConfig>();
