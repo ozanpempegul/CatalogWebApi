@@ -8,7 +8,6 @@ Change ConnectionStrings->DefaultConnection->Server:{Your Server Name}
 
 Then open TERMINAL in your IDE and:  
 dotnet run --project CatalogWebApi  
-dotnet run
 
 Finally you can open swagger in your web browser  
 https://localhost:7089/swagger/index.html  
