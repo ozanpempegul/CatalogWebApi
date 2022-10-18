@@ -13,7 +13,7 @@ Finally you can open swagger in your web browser
 https://localhost:7089/swagger/index.html  
 
 Bugs (or missing features):  
-1. In order to add image to the database as a byte array, you need to remove [NotMapped] Attribute from the image property from Product Model.
+1. In order to add image to the database as a byte array, you need to remove [NotMapped] Attribute from the image property from "Product" model.
 But if you do that, you will get unexpected Exceptions while getting datas without images. (It is not recommended.)  
 2. Tests will be added. (Hopefully)  
 
